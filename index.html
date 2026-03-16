@@ -1,0 +1,949 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Martina Ciromyatnikova — Portfolio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=Barlow:wght@300;400&family=Noto+Sans+JP:wght@400;700;900&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --black: #000000;
+      --white: #ffffff;
+      --off-white: #e8e8e8;
+      --dim: rgba(255,255,255,0.4);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--black);
+      color: var(--white);
+      font-family: 'Barlow Condensed', 'Franklin Gothic Heavy', 'Arial Narrow', sans-serif;
+      overflow-x: hidden;
+    }
+
+    /* ── Cursor ── */
+    #cursor {
+      position: fixed;
+      width: 12px; height: 12px;
+      background: var(--white);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 99999;
+      left: -20px; top: -20px;
+      transform: translate(-50%, -50%);
+      transition: width .2s ease, height .2s ease;
+      mix-blend-mode: difference;
+    }
+    #cursor.big { width: 40px; height: 40px; }
+
+    /* ── Language Switcher ── */
+    .lang-switcher {
+      position: fixed;
+      bottom: 32px; right: 36px;
+      z-index: 2000;
+      display: flex;
+      gap: 6px;
+    }
+    .lang-btn {
+      background: none;
+      border: 1px solid rgba(255,255,255,0.2);
+      color: rgba(255,255,255,0.35);
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 7px 11px;
+      cursor: pointer;
+      transition: border-color .25s, color .25s, background .25s;
+      line-height: 1;
+    }
+    .lang-btn:hover {
+      border-color: rgba(255,255,255,0.5);
+      color: rgba(255,255,255,0.7);
+    }
+    .lang-btn.active {
+      border-color: var(--white);
+      color: var(--white);
+      background: rgba(255,255,255,0.07);
+    }
+
+    /* ── Header ── */
+    header {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 28px 52px;
+      background: rgba(0,0,0,0.85);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+    .logo { display: inline-flex; align-items: center; text-decoration: none; }
+    .logo-img { height: clamp(32px, 4vw, 52px); width: auto; display: block; }
+
+    nav { display: flex; gap: clamp(20px, 3vw, 52px); align-items: center; }
+    nav a {
+      color: var(--white);
+      text-decoration: none;
+      font-size: clamp(11px, 1.1vw, 14px);
+      font-weight: 800;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      position: relative;
+      padding-bottom: 3px;
+    }
+    nav a::after {
+      content: '';
+      position: absolute;
+      left: 0; bottom: 0;
+      width: 0; height: 1.5px;
+      background: var(--white);
+      transition: width .3s ease;
+    }
+    nav a:hover::after { width: 100%; }
+    nav a.active-nav::after { width: 100%; }
+
+    /* ── Pages ── */
+    .page { display: none; }
+    .page.active { display: block; }
+
+    /* ── Hero ── */
+    #hero {
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero-inner {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 24px;
+      animation: fadeUp .9s cubic-bezier(.22,1,.36,1) both;
+    }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(40px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .hero-text {
+      font-size: clamp(64px, 11vw, 160px);
+      font-weight: 900;
+      letter-spacing: -0.01em;
+      line-height: 0.93;
+      text-align: center;
+      font-style: italic;
+      color: var(--white);
+      user-select: none;
+      transition: opacity .5s ease, filter .5s ease, transform .5s ease;
+    }
+    .hero-text.switching {
+      opacity: 0;
+      filter: blur(14px);
+      transform: translateY(-18px);
+    }
+    .hero-text.lang-ja {
+      font-family: 'Noto Sans JP', sans-serif;
+      font-style: normal;
+      font-size: clamp(44px, 8vw, 110px);
+      letter-spacing: 0.04em;
+    }
+    .lang-label {
+      font-family: 'Barlow', sans-serif;
+      font-size: 11px;
+      font-weight: 300;
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      color: var(--dim);
+      text-align: center;
+      transition: opacity .4s ease;
+      min-height: 16px;
+    }
+    .arrow-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 12px;
+      animation: arrowBob 2.4s ease-in-out infinite;
+    }
+    @keyframes arrowBob {
+      0%, 100% { transform: translateY(0); }
+      50%       { transform: translateY(10px); }
+    }
+    .arrow-btn svg {
+      width: 36px; height: 36px;
+      stroke: var(--white);
+      transition: opacity .3s;
+    }
+    .arrow-btn:hover svg { opacity: .5; }
+
+    /* ── About ── */
+    #about {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      padding: 120px 52px 100px;
+    }
+    .about-grid {
+      max-width: 1100px;
+      width: 100%;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: center;
+    }
+    .about-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--dim);
+      margin-bottom: 24px;
+    }
+    .about-heading {
+      font-size: clamp(42px, 5.5vw, 80px);
+      font-weight: 900;
+      line-height: 0.95;
+      font-style: italic;
+      margin-bottom: 36px;
+    }
+    .about-heading.lang-ja {
+      font-family: 'Noto Sans JP', sans-serif;
+      font-style: normal;
+      font-size: clamp(32px, 4vw, 60px);
+      line-height: 1.1;
+    }
+    .about-body {
+      font-family: 'Barlow', sans-serif;
+      font-size: clamp(15px, 1.3vw, 18px);
+      font-weight: 300;
+      line-height: 1.75;
+      color: var(--off-white);
+      max-width: 420px;
+    }
+    .about-body.lang-ja {
+      font-family: 'Noto Sans JP', sans-serif;
+      font-weight: 400;
+    }
+    .about-photo-wrap {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 3/4;
+      overflow: hidden;
+    }
+    .about-photo {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: top center;
+      display: block;
+      filter: grayscale(100%);
+      transition: filter .6s ease, transform .6s ease;
+    }
+    .about-photo-wrap:hover .about-photo {
+      filter: grayscale(60%);
+      transform: scale(1.03);
+    }
+
+    /* ── Artwork ── */
+    #page-artwork { padding: 130px 52px 80px; min-height: 100vh; }
+    .page-title {
+      font-size: clamp(42px, 6vw, 90px);
+      font-weight: 900;
+      font-style: italic;
+      line-height: 0.93;
+      margin-bottom: 60px;
+      max-width: 1100px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .page-title.lang-ja {
+      font-family: 'Noto Sans JP', sans-serif;
+      font-style: normal;
+    }
+    .artwork-grid {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+    .artwork-card {
+      aspect-ratio: 3/4;
+      background: #111;
+      position: relative;
+      overflow: hidden;
+    }
+    .artwork-card:nth-child(2) { margin-top: 40px; }
+    .card-bg {
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg, #1a1a1a 0%, #0d0d0d 100%);
+      transition: transform .6s cubic-bezier(.4,0,.2,1);
+    }
+    .artwork-card:hover .card-bg { transform: scale(1.04); }
+    .card-art {
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      z-index: 1;
+    }
+    .card-art svg { opacity: .12; }
+    .artwork-card-num {
+      position: absolute; top: 20px; right: 20px;
+      font-size: 11px; font-weight: 700;
+      color: rgba(255,255,255,0.2); z-index: 2;
+    }
+    .artwork-card-label {
+      position: absolute; bottom: 24px; left: 24px;
+      font-size: 11px; font-weight: 700;
+      letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--dim); z-index: 2;
+    }
+
+    /* ── Concepts ── */
+    #page-concepts { padding: 130px 52px 80px; min-height: 100vh; }
+    .concepts-list { max-width: 1100px; margin: 0 auto; }
+    .concept-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 32px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      transition: padding-left .35s cubic-bezier(.4,0,.2,1);
+    }
+    .concept-row:first-child { border-top: 1px solid rgba(255,255,255,0.08); }
+    .concept-row:hover { padding-left: 18px; }
+    .concept-title {
+      font-size: clamp(24px, 3vw, 44px);
+      font-weight: 900;
+      font-style: italic;
+      flex: 1;
+    }
+    .concept-meta {
+      font-family: 'Barlow', sans-serif;
+      font-size: 12px; font-weight: 300;
+      letter-spacing: 0.15em; text-transform: uppercase;
+      color: var(--dim); margin: 0 32px;
+    }
+    .concept-arrow {
+      width: 20px; height: 20px;
+      stroke: var(--dim); flex-shrink: 0;
+      transition: stroke .3s, transform .3s;
+    }
+    .concept-row:hover .concept-arrow {
+      stroke: var(--white);
+      transform: translate(4px, -4px);
+    }
+
+    /* ── Contact ── */
+    #page-contact {
+      min-height: 100vh;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      text-align: center;
+      padding: 120px 52px 80px;
+    }
+    .contact-eyebrow {
+      font-size: 11px; font-weight: 700;
+      letter-spacing: 0.3em; text-transform: uppercase;
+      color: var(--dim); margin-bottom: 24px;
+    }
+    .contact-heading {
+      font-size: clamp(52px, 8vw, 120px);
+      font-weight: 900; font-style: italic;
+      line-height: 0.92; margin-bottom: 52px;
+    }
+    .contact-heading.lang-ja {
+      font-family: 'Noto Sans JP', sans-serif;
+      font-style: normal;
+      font-size: clamp(40px, 6vw, 90px);
+    }
+    .contact-btn {
+      display: inline-block;
+      border: 1.5px solid var(--white);
+      color: var(--white);
+      text-decoration: none;
+      font-size: 12px; font-weight: 800;
+      letter-spacing: 0.25em; text-transform: uppercase;
+      padding: 18px 52px;
+      position: relative; overflow: hidden;
+      transition: color .35s;
+    }
+    .contact-btn::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: var(--white);
+      transform: translateY(100%);
+      transition: transform .35s cubic-bezier(.4,0,.2,1);
+    }
+    .contact-btn span { position: relative; z-index: 1; }
+    .contact-btn:hover { color: var(--black); }
+    .contact-btn:hover::before { transform: translateY(0); }
+    .contact-info {
+      margin-top: 60px;
+      display: flex; gap: 60px;
+      font-family: 'Barlow', sans-serif;
+      font-size: 13px; font-weight: 300;
+      color: var(--dim); letter-spacing: 0.1em;
+      flex-wrap: wrap; justify-content: center;
+    }
+
+    /* ── Footer ── */
+    footer {
+      padding: 32px 52px;
+      display: flex; align-items: center; justify-content: space-between;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      font-family: 'Barlow', sans-serif;
+      font-size: 11px; font-weight: 300;
+      color: var(--dim); letter-spacing: 0.1em;
+    }
+
+    /* ── Reveal ── */
+    .reveal { opacity: 0; transform: translateY(28px); transition: opacity .7s ease, transform .7s ease; }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+
+    /* ── Lang transition for page content ── */
+    .translatable { transition: opacity .35s ease; }
+    .translatable.fading { opacity: 0; }
+
+    /* ── Responsive ── */
+    @media (max-width: 768px) {
+      header { padding: 20px 24px; }
+      nav { gap: 16px; }
+      #page-artwork, #page-concepts, #page-contact, #about { padding-left: 24px; padding-right: 24px; }
+      .about-grid { grid-template-columns: 1fr; gap: 48px; }
+      .artwork-grid { grid-template-columns: repeat(2, 1fr); }
+      .artwork-card:nth-child(2) { margin-top: 0; }
+      .concept-meta { display: none; }
+      footer { flex-direction: column; gap: 10px; text-align: center; }
+      .contact-info { flex-direction: column; gap: 16px; }
+      .lang-switcher { bottom: 20px; right: 20px; }
+    }
+    @media (max-width: 480px) {
+      .artwork-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="cursor"></div>
+
+  <!-- Language Switcher -->
+  <div class="lang-switcher">
+    <button class="lang-btn active" data-lang="en">EN</button>
+    <button class="lang-btn" data-lang="jp">JP</button>
+    <button class="lang-btn" data-lang="ua">UA</button>
+    <button class="lang-btn" data-lang="sk">SK</button>
+  </div>
+
+  <!-- Header -->
+  <header>
+    <a href="#" class="logo" data-page="home">
+      <img src="logo.png" alt="Martina Ciromyatnikova" class="logo-img" />
+    </a>
+    <nav>
+      <a href="#" data-page="artwork" data-t="nav_artwork">Artwork</a>
+      <a href="#" data-page="concepts" data-t="nav_concepts">Concepts</a>
+      <a href="#" data-page="contact" data-t="nav_contact">Contact Us</a>
+    </nav>
+  </header>
+
+  <!-- HOME -->
+  <div id="page-home" class="page active">
+    <section id="hero">
+      <div class="hero-inner">
+        <h1 class="hero-text" id="heroText">Learn<br>about me</h1>
+        <div class="lang-label" id="langLabel">&nbsp;</div>
+        <button class="arrow-btn" id="scrollArrow" aria-label="Scroll down">
+          <svg viewBox="0 0 36 36" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="6,12 18,24 30,12"/>
+          </svg>
+        </button>
+      </div>
+    </section>
+
+    <section id="about">
+      <div class="about-grid reveal">
+        <div>
+          <p class="about-label translatable" data-t="about_label">About me</p>
+          <h2 class="about-heading translatable" data-t="about_heading">Junior Fashion<br>Designer.</h2>
+          <p class="about-body translatable" data-t="about_body">I am Martina Ciromyatnikova —</p>
+        </div>
+        <div class="about-photo-wrap">
+          <img src="photo.jpg" alt="Martina Ciromyatnikova" class="about-photo" />
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      <span class="translatable" data-t="footer_copy">&copy; 2026 Martina Ciromyatnikova</span>
+      <span class="translatable" data-t="footer_rights">All rights reserved</span>
+    </footer>
+  </div>
+
+  <!-- ARTWORK -->
+  <div id="page-artwork" class="page">
+    <h2 class="page-title translatable" data-t="artwork_title">Selected Work</h2>
+    <div class="artwork-grid">
+      <div class="artwork-card">
+        <div class="card-bg"></div>
+        <div class="card-art">
+          <svg width="120" height="120" viewBox="0 0 120 120" fill="none">
+            <circle cx="60" cy="60" r="50" stroke="white" stroke-width="1.5"/>
+            <circle cx="60" cy="60" r="30" stroke="white" stroke-width="1"/>
+            <line x1="60" y1="10" x2="60" y2="110" stroke="white" stroke-width="1"/>
+          </svg>
+        </div>
+        <span class="artwork-card-num">01</span>
+        <span class="artwork-card-label translatable" data-t="card_01">Orbital Study</span>
+      </div>
+      <div class="artwork-card">
+        <div class="card-bg"></div>
+        <div class="card-art">
+          <svg width="120" height="120" viewBox="0 0 120 120" fill="none">
+            <rect x="20" y="20" width="80" height="80" stroke="white" stroke-width="1.5"/>
+            <rect x="36" y="36" width="48" height="48" stroke="white" stroke-width="1"/>
+            <line x1="20" y1="20" x2="100" y2="100" stroke="white" stroke-width="1"/>
+          </svg>
+        </div>
+        <span class="artwork-card-num">02</span>
+        <span class="artwork-card-label translatable" data-t="card_02">Interior Geometry</span>
+      </div>
+      <div class="artwork-card">
+        <div class="card-bg"></div>
+        <div class="card-art">
+          <svg width="120" height="120" viewBox="0 0 120 120" fill="none">
+            <path d="M60 10 L110 100 L10 100 Z" stroke="white" stroke-width="1.5" fill="none"/>
+            <path d="M60 35 L90 85 L30 85 Z" stroke="white" stroke-width="1" fill="none"/>
+          </svg>
+        </div>
+        <span class="artwork-card-num">03</span>
+        <span class="artwork-card-label translatable" data-t="card_03">Threshold Series</span>
+      </div>
+      <div class="artwork-card">
+        <div class="card-bg"></div>
+        <div class="card-art">
+          <svg width="120" height="120" viewBox="0 0 120 120" fill="none">
+            <line x1="10" y1="60" x2="110" y2="60" stroke="white" stroke-width="1.5"/>
+            <line x1="60" y1="10" x2="60" y2="110" stroke="white" stroke-width="1.5"/>
+            <circle cx="60" cy="60" r="40" stroke="white" stroke-width="1"/>
+          </svg>
+        </div>
+        <span class="artwork-card-num">04</span>
+        <span class="artwork-card-label translatable" data-t="card_04">Axis Study</span>
+      </div>
+      <div class="artwork-card">
+        <div class="card-bg"></div>
+        <div class="card-art">
+          <svg width="120" height="120" viewBox="0 0 120 120" fill="none">
+            <ellipse cx="60" cy="60" rx="50" ry="25" stroke="white" stroke-width="1.5"/>
+            <ellipse cx="60" cy="60" rx="25" ry="50" stroke="white" stroke-width="1"/>
+          </svg>
+        </div>
+        <span class="artwork-card-num">05</span>
+        <span class="artwork-card-label translatable" data-t="card_05">Meridian</span>
+      </div>
+      <div class="artwork-card">
+        <div class="card-bg"></div>
+        <div class="card-art">
+          <svg width="120" height="120" viewBox="0 0 120 120" fill="none">
+            <polygon points="60,10 110,90 10,90" stroke="white" stroke-width="1.5" fill="none"/>
+            <polygon points="60,35 90,80 30,80" stroke="white" stroke-width="1" fill="none"/>
+            <circle cx="60" cy="60" r="10" stroke="white" stroke-width="1"/>
+          </svg>
+        </div>
+        <span class="artwork-card-num">06</span>
+        <span class="artwork-card-label translatable" data-t="card_06">Convergence</span>
+      </div>
+    </div>
+    <footer>
+      <span class="translatable" data-t="footer_copy">&copy; 2026 Martina Ciromyatnikova</span>
+      <span class="translatable" data-t="footer_rights">All rights reserved</span>
+    </footer>
+  </div>
+
+  <!-- CONCEPTS -->
+  <div id="page-concepts" class="page">
+    <h2 class="page-title translatable" data-t="concepts_title">Concepts</h2>
+    <div class="concepts-list">
+      <div class="concept-row">
+        <span class="concept-title translatable" data-t="concept_01">Soon.</span>
+        <span class="concept-meta">???</span>
+        <svg class="concept-arrow" viewBox="0 0 20 20" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="2" y1="18" x2="18" y2="2"/><polyline points="6,2 18,2 18,14"/>
+        </svg>
+      </div>
+      <div class="concept-row">
+        <span class="concept-title translatable" data-t="concept_02">Soon.</span>
+        <span class="concept-meta">???</span>
+        <svg class="concept-arrow" viewBox="0 0 20 20" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="2" y1="18" x2="18" y2="2"/><polyline points="6,2 18,2 18,14"/>
+        </svg>
+      </div>
+      <div class="concept-row">
+        <span class="concept-title translatable" data-t="concept_03">Soon.</span>
+        <span class="concept-meta">???</span>
+        <svg class="concept-arrow" viewBox="0 0 20 20" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="2" y1="18" x2="18" y2="2"/><polyline points="6,2 18,2 18,14"/>
+        </svg>
+      </div>
+      <div class="concept-row">
+        <span class="concept-title translatable" data-t="concept_04">Soon.</span>
+        <span class="concept-meta">???</span>
+        <svg class="concept-arrow" viewBox="0 0 20 20" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="2" y1="18" x2="18" y2="2"/><polyline points="6,2 18,2 18,14"/>
+        </svg>
+      </div>
+      <div class="concept-row">
+        <span class="concept-title translatable" data-t="concept_05">Soon.</span>
+        <span class="concept-meta">???</span>
+        <svg class="concept-arrow" viewBox="0 0 20 20" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="2" y1="18" x2="18" y2="2"/><polyline points="6,2 18,2 18,14"/>
+        </svg>
+      </div>
+    </div>
+    <footer>
+      <span class="translatable" data-t="footer_copy">&copy; 2026 Martina Ciromyatnikova</span>
+      <span class="translatable" data-t="footer_rights">All rights reserved</span>
+    </footer>
+  </div>
+
+  <!-- CONTACT -->
+  <div id="page-contact" class="page">
+    <p class="contact-eyebrow translatable" data-t="contact_eyebrow">Let's connect</p>
+    <h2 class="contact-heading translatable" data-t="contact_heading">Get in<br>touch.</h2>
+    <a href="mailto:martina20221ol@gmail.com" class="contact-btn">
+      <span class="translatable" data-t="contact_btn">Write to me</span>
+    </a>
+    <div class="contact-info">
+      <span>martina20221ol@gmail.com</span>
+      <span>Instagram: @martilenzz</span>
+      <span class="translatable" data-t="contact_location">Based in Japan</span>
+    </div>
+    <footer style="margin-top:80px; width:100%;">
+      <span class="translatable" data-t="footer_copy">&copy; 2026 Martina Ciromyatnikova</span>
+      <span class="translatable" data-t="footer_rights">All rights reserved</span>
+    </footer>
+  </div>
+
+  <script>
+    /* ════════════════════════════════
+       TRANSLATIONS
+    ════════════════════════════════ */
+    var T = {
+      en: {
+        hero_lines: ['Learn', 'about me'],
+        hero_cls: '',
+        hero_label: 'English',
+        nav_artwork:   'Artwork',
+        nav_concepts:  'Concepts',
+        nav_contact:   'Contact Us',
+        about_label:   'About me',
+        about_heading: 'Junior Fashion<br>Designer.',
+        about_heading_cls: '',
+        about_body:    'I am Martina Ciromyatnikova —',
+        about_body_cls: '',
+        artwork_title: 'Selected Work',
+        artwork_title_cls: '',
+        card_01: 'Orbital Study',
+        card_02: 'Interior Geometry',
+        card_03: 'Threshold Series',
+        card_04: 'Axis Study',
+        card_05: 'Meridian',
+        card_06: 'Convergence',
+        concepts_title: 'Concepts',
+        concept_01: 'Soon.',
+        concept_02: 'Soon.',
+        concept_03: 'Soon.',
+        concept_04: 'Soon.',
+        concept_05: 'Soon.',
+        contact_eyebrow: "Let's connect",
+        contact_heading: 'Get in<br>touch.',
+        contact_heading_cls: '',
+        contact_btn: 'Write to me',
+        contact_location: 'Based in Japan',
+        footer_copy: '&copy; 2026 Martina Ciromyatnikova',
+        footer_rights: 'All rights reserved'
+      },
+      jp: {
+        hero_lines: ['\u79C1\u306B\u3064\u3044\u3066', '\u77E5\u308B'],
+        hero_cls: 'lang-ja',
+        hero_label: '\u65E5\u672C\u8A9E',
+        nav_artwork:   '\u4F5C\u54C1',
+        nav_concepts:  '\u30B3\u30F3\u30BB\u30D7\u30C8',
+        nav_contact:   '\u304A\u554F\u3044\u5408\u308F\u305B',
+        about_label:   '\u81EA\u5DF1\u7D39\u4ECB',
+        about_heading: '\u30D5\u30A1\u30C3\u30B7\u30E7\u30F3<br>\u30C7\u30B6\u30A4\u30CA\u30FC\u3002',
+        about_heading_cls: 'lang-ja',
+        about_body:    '\u79C1\u306F\u30DE\u30EB\u30C6\u30A3\u30CA\u30FB\u30C1\u30ED\u30DF\u30E4\u30C8\u30CB\u30B3\u30EF\u3067\u3059\u2014',
+        about_body_cls: 'lang-ja',
+        artwork_title: '\u4F5C\u54C1\u9078',
+        artwork_title_cls: 'lang-ja',
+        card_01: '\u8ECC\u9053\u7814\u7A76',
+        card_02: '\u5185\u90E8\u5E7E\u4F55\u5B66',
+        card_03: '\u958B\u3051\u653E\u3061\u30B7\u30EA\u30FC\u30BA',
+        card_04: '\u8EE2\u8EF8\u7814\u7A76',
+        card_05: '\u5B50\u5348\u7DDA',
+        card_06: '\u53CE\u6558',
+        concepts_title: '\u30B3\u30F3\u30BB\u30D7\u30C8',
+        concept_01: '\u8FBA\u308A\u3002',
+        concept_02: '\u8FBA\u308A\u3002',
+        concept_03: '\u8FBA\u308A\u3002',
+        concept_04: '\u8FBA\u308A\u3002',
+        concept_05: '\u8FBA\u308A\u3002',
+        contact_eyebrow: '\u304A\u6C17\u8EFD\u306B\u3069\u3046\u305E',
+        contact_heading: '\u304A\u554F\u3044\u5408\u308F\u305B<br>\u304F\u3060\u3055\u3044\u3002',
+        contact_heading_cls: 'lang-ja',
+        contact_btn: '\u30E1\u30C3\u30BB\u30FC\u30B8\u3092\u9001\u308B',
+        contact_location: '\u65E5\u672C\u5728\u4F4F',
+        footer_copy: '&copy; 2026 Martina Ciromyatnikova',
+        footer_rights: '\u7121\u65AD\u8EEA\u8EE2\u8F09\u7981\u6B62'
+      },
+      ua: {
+        hero_lines: ['\u0414\u0456\u0437\u043D\u0430\u0442\u0438\u0441\u044F', '\u043F\u0440\u043E \u043C\u0435\u043D\u0435'],
+        hero_cls: '',
+        hero_label: '\u0423\u043A\u0440\u0430\u0457\u043D\u0441\u044C\u043A\u0430',
+        nav_artwork:   '\u0420\u043E\u0431\u043E\u0442\u0438',
+        nav_concepts:  '\u041A\u043E\u043D\u0446\u0435\u043F\u0446\u0456\u0457',
+        nav_contact:   '\u0417\u0432\u2019\u044F\u0437\u0430\u0442\u0438\u0441\u044C',
+        about_label:   '\u041F\u0440\u043E \u043C\u0435\u043D\u0435',
+        about_heading: '\u041C\u043E\u043B\u043E\u0434\u0438\u0439<br>\u0444\u0435\u0448\u043D-\u0434\u0438\u0437\u0430\u0439\u043D\u0435\u0440.',
+        about_heading_cls: '',
+        about_body:    '\u042F \u2014 \u041C\u0430\u0440\u0442\u0456\u043D\u0430 \u0427\u0438\u0440\u043E\u043C\u2019\u044F\u0442\u043D\u0456\u043A\u043E\u0432\u0430\u2014',
+        about_body_cls: '',
+        artwork_title: '\u0412\u0438\u0431\u0440\u0430\u043D\u0456 \u0440\u043E\u0431\u043E\u0442\u0438',
+        artwork_title_cls: '',
+        card_01: '\u041E\u0440\u0431\u0456\u0442\u0430\u043B\u044C\u043D\u0435 \u0434\u043E\u0441\u043B\u0456\u0434\u0436\u0435\u043D\u043D\u044F',
+        card_02: '\u0412\u043D\u0443\u0442\u0440\u0456\u0448\u043D\u044F \u0433\u0435\u043E\u043C\u0435\u0442\u0440\u0456\u044F',
+        card_03: '\u0421\u0435\u0440\u0456\u044F \u043F\u043E\u0440\u043E\u0433\u0456\u0432',
+        card_04: '\u0414\u043E\u0441\u043B\u0456\u0434\u0436\u0435\u043D\u043D\u044F \u043E\u0441\u0435\u0439',
+        card_05: '\u041C\u0435\u0440\u0438\u0434\u0456\u0430\u043D',
+        card_06: '\u0417\u0431\u0456\u0436\u043D\u0456\u0441\u0442\u044C',
+        concepts_title: '\u041A\u043E\u043D\u0446\u0435\u043F\u0446\u0456\u0457',
+        concept_01: '\u0421\u043A\u043E\u0440\u043E.',
+        concept_02: '\u0421\u043A\u043E\u0440\u043E.',
+        concept_03: '\u0421\u043A\u043E\u0440\u043E.',
+        concept_04: '\u0421\u043A\u043E\u0440\u043E.',
+        concept_05: '\u0421\u043A\u043E\u0440\u043E.',
+        contact_eyebrow: '\u041D\u0430\u043F\u0438\u0448\u0456\u0442\u044C \u043C\u0435\u043D\u0456',
+        contact_heading: '\u041D\u0430 \u0437\u2019\u044F\u0437\u043A\u0443<br>\u0437\u0456 \u043C\u043D\u043E\u044E.',
+        contact_heading_cls: '',
+        contact_btn: '\u041D\u0430\u043F\u0438\u0441\u0430\u0442\u0438',
+        contact_location: '\u041F\u0440\u043E\u0436\u0438\u0432\u0430\u044E \u0432 \u042F\u043F\u043E\u043D\u0456\u0457',
+        footer_copy: '&copy; 2026 Martina Ciromyatnikova',
+        footer_rights: '\u0423\u0441\u0456 \u043F\u0440\u0430\u0432\u0430 \u0437\u0430\u0445\u0438\u0449\u0435\u043D\u043E'
+      },
+      sk: {
+        hero_lines: ['Zisti\u0165', 'o mne'],
+        hero_cls: '',
+        hero_label: 'Sloven\u010Dina',
+        nav_artwork:   'Diela',
+        nav_concepts:  'Koncepty',
+        nav_contact:   'Kontakt',
+        about_label:   'O mne',
+        about_heading: 'Za\u010Dinaj\xFAca<br>m\xF3dna dizajn\xe9rka.',
+        about_heading_cls: '',
+        about_body:    'Som Martina Ciromyatnikovov\xe1\u2014',
+        about_body_cls: '',
+        artwork_title: 'Vybran\xe9 pr\xe1ce',
+        artwork_title_cls: '',
+        card_01: 'Orbit\xe1lna \u0161t\xFAdia',
+        card_02: 'Vn\xFAtorn\xe1 geometria',
+        card_03: 'S\xe9ria prahov',
+        card_04: '\u0160t\xFAdia os\xed',
+        card_05: 'Meridi\xe1n',
+        card_06: 'Konvergencia',
+        concepts_title: 'Koncepty',
+        concept_01: '\u010Coskoro.',
+        concept_02: '\u010Coskoro.',
+        concept_03: '\u010Coskoro.',
+        concept_04: '\u010Coskoro.',
+        concept_05: '\u010Coskoro.',
+        contact_eyebrow: 'Spojme sa',
+        contact_heading: 'Nap\xED\u0161te<br>mi.',
+        contact_heading_cls: '',
+        contact_btn: 'Nap\xEDsa\u0165',
+        contact_location: 'S\xEAdlim v Japonsku',
+        footer_copy: '&copy; 2026 Martina Ciromyatnikova',
+        footer_rights: 'V\u0161etky pr\xe1va vyhrazen\xe9'
+      }
+    };
+
+    /* ════════════════════════════════
+       STATE
+    ════════════════════════════════ */
+    var currentLang = 'en';
+    var heroLangIdx = 0;
+    var heroOrder   = ['en', 'jp', 'ua', 'sk'];
+    var heroTimer   = null;
+    var heroEl  = document.getElementById('heroText');
+    var labelEl = document.getElementById('langLabel');
+
+    /* ════════════════════════════════
+       HERO-ONLY ANIMATION
+       (cycles automatically, independent
+        of the site language)
+    ════════════════════════════════ */
+    function animateHeroTo(langCode) {
+      var t = T[langCode];
+      heroEl.classList.add('switching');
+      labelEl.style.opacity = '0';
+      setTimeout(function() {
+        heroEl.className = 'hero-text switching' + (t.hero_cls ? ' ' + t.hero_cls : '');
+        heroEl.innerHTML = t.hero_lines.join('<br>');
+        labelEl.textContent = t.hero_label;
+        requestAnimationFrame(function() {
+          requestAnimationFrame(function() {
+            heroEl.classList.remove('switching');
+            labelEl.style.opacity = '1';
+          });
+        });
+      }, 500);
+    }
+
+    function startHeroCycle() {
+      clearInterval(heroTimer);
+      heroTimer = setInterval(function() {
+        heroLangIdx = (heroLangIdx + 1) % heroOrder.length;
+        animateHeroTo(heroOrder[heroLangIdx]);
+      }, 3200);
+    }
+
+    /* ════════════════════════════════
+       FULL SITE TRANSLATION
+       (only on button click)
+    ════════════════════════════════ */
+    function applySiteLang(langCode, animate) {
+      currentLang = langCode;
+      var t = T[langCode];
+
+      // Update active button
+      document.querySelectorAll('.lang-btn').forEach(function(btn) {
+        btn.classList.toggle('active', btn.dataset.lang === langCode);
+      });
+
+      // Sync hero to match chosen language instantly
+      heroLangIdx = heroOrder.indexOf(langCode);
+      if (animate) {
+        animateHeroTo(langCode);
+        // restart cycle from this language
+        startHeroCycle();
+      } else {
+        heroEl.className = 'hero-text' + (t.hero_cls ? ' ' + t.hero_cls : '');
+        heroEl.innerHTML = t.hero_lines.join('<br>');
+        labelEl.textContent = '';
+      }
+
+      // Translate all [data-t] elements
+      var transEls = document.querySelectorAll('.translatable');
+      if (animate) {
+        transEls.forEach(function(el) { el.classList.add('fading'); });
+      }
+      setTimeout(function() {
+        transEls.forEach(function(el) {
+          var key = el.dataset.t;
+          if (!key || !t[key]) return;
+          el.innerHTML = t[key];
+          var clsKey = key + '_cls';
+          if (t[clsKey] !== undefined) {
+            el.classList.remove('lang-ja');
+            if (t[clsKey]) el.classList.add(t[clsKey]);
+          }
+        });
+        if (animate) {
+          transEls.forEach(function(el) { el.classList.remove('fading'); });
+        }
+      }, animate ? 300 : 0);
+    }
+
+    /* ════════════════════════════════
+       MANUAL BUTTONS
+       → translate full site
+       → hero auto-cycle restarts from
+         the selected language
+    ════════════════════════════════ */
+    document.querySelectorAll('.lang-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var code = btn.dataset.lang;
+        if (code === currentLang) return;
+        applySiteLang(code, true);
+      });
+    });
+
+    /* ════════════════════════════════
+       CURSOR
+    ════════════════════════════════ */
+    var cur = document.getElementById('cursor');
+    document.addEventListener('mousemove', function(e) {
+      cur.style.left = e.clientX + 'px';
+      cur.style.top  = e.clientY + 'px';
+    });
+    function addCursorHover(sel) {
+      document.querySelectorAll(sel).forEach(function(el) {
+        el.addEventListener('mouseenter', function() { cur.classList.add('big'); });
+        el.addEventListener('mouseleave', function() { cur.classList.remove('big'); });
+      });
+    }
+    addCursorHover('a, button, .artwork-card, .concept-row');
+
+    /* ════════════════════════════════
+       NAVIGATION
+    ════════════════════════════════ */
+    function showPage(name) {
+      document.querySelectorAll('.page').forEach(function(p) { p.classList.remove('active'); });
+      var pg = document.getElementById('page-' + name);
+      if (pg) pg.classList.add('active');
+      window.scrollTo(0, 0);
+      document.querySelectorAll('nav a').forEach(function(a) {
+        a.classList.toggle('active-nav', a.dataset.page === name);
+      });
+      setTimeout(initReveal, 50);
+      setTimeout(function() { addCursorHover('a, button, .artwork-card, .concept-row'); }, 60);
+    }
+    document.querySelectorAll('[data-page]').forEach(function(el) {
+      el.addEventListener('click', function(e) {
+        e.preventDefault();
+        showPage(el.dataset.page);
+      });
+    });
+
+    /* ════════════════════════════════
+       SCROLL ARROW
+    ════════════════════════════════ */
+    document.getElementById('scrollArrow').addEventListener('click', function() {
+      document.getElementById('about').scrollIntoView({ behavior: 'smooth' });
+    });
+
+    /* ════════════════════════════════
+       SCROLL REVEAL
+    ════════════════════════════════ */
+    function initReveal() {
+      var els = document.querySelectorAll('.page.active .reveal:not(.visible)');
+      if (!els.length) return;
+      var obs = new IntersectionObserver(function(entries) {
+        entries.forEach(function(e) {
+          if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); }
+        });
+      }, { threshold: 0.1 });
+      els.forEach(function(el) { obs.observe(el); });
+    }
+    initReveal();
+
+    /* ════════════════════════════════
+       INIT
+    ════════════════════════════════ */
+    applySiteLang('en', false);
+    startHeroCycle();
+  </script>
+</body>
+</html>
